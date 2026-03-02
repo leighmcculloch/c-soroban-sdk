@@ -70,7 +70,7 @@ val mint(val to, val amount) {
     val bal = get_balance(to);
     set_balance(to, i128_add(bal, amount));
 
-    emit_event3(symbol_small("mint"), admin, to, amount);
+    emit_event2(symbol_small("mint"), to, amount);
 
     return VAL_VOID;
 }
