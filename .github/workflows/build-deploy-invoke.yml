@@ -1,0 +1,52 @@
+name: Build, Deploy, and Invoke on Testnet
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-deploy-invoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang and wasm target
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang lld
+
+      - name: Build contracts
+        run: make
+
+      - name: Upload wasm artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contracts
+          path: contracts/**/*.wasm
+
+      - name: Install Stellar CLI
+        run: |
+          curl -fsSL https://github.com/stellar/stellar-cli/releases/latest/download/stellar-cli-installer.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure testnet and identity
+        run: |
+          stellar network use testnet
+          stellar keys generate deployer --fund
+          stellar keys use deployer
+
+      - name: Deploy increment contract
+        run: |
+          stellar contract deploy \
+            --alias increment \
+            --wasm contracts/increment/increment.wasm
+          echo "Increment contract deployed"
+
+      - name: Invoke increment (first call)
+        run: test "$(stellar contract invoke --id increment -- increment)" = "1"
+
+      - name: Invoke increment (second call)
+        run: test "$(stellar contract invoke --id increment -- increment)" = "2"
+
