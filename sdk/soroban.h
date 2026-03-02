@@ -81,24 +81,6 @@ static inline int val_is_u128(val v) {
     return val_tag(v) == TAG_U128_SMALL || val_tag(v) == TAG_U128_OBJECT;
 }
 
-/* ---- Type assertion helpers ---- */
-static inline val require_type(val v, int (*check)(val)) {
-    if (!check(v))
-        fail_with_error(val_from_contract_error(0));
-    return v;
-}
-
-#define require_u32(v)     require_type(v, val_is_u32)
-#define require_i32(v)     require_type(v, val_is_i32)
-#define require_address(v) require_type(v, val_is_address)
-#define require_string(v)  require_type(v, val_is_string)
-#define require_symbol(v)  require_type(v, val_is_symbol)
-#define require_bytes(v)   require_type(v, val_is_bytes)
-#define require_vec(v)     require_type(v, val_is_vec)
-#define require_map(v)     require_type(v, val_is_map)
-#define require_i128(v)    require_type(v, val_is_i128)
-#define require_u128(v)    require_type(v, val_is_u128)
-
 /* ================================================================
  * Val from/to — inline small types (no host call)
  * ================================================================ */
@@ -183,6 +165,24 @@ val get_ledger_timestamp(void);
 
 __attribute__((import_module("x"), import_name("5")))
 val fail_with_error(val error);
+
+/* ---- Type assertion helpers ---- */
+static inline val require_type(val v, int (*check)(val)) {
+    if (!check(v))
+        fail_with_error(val_from_contract_error(0));
+    return v;
+}
+
+#define require_u32(v)     require_type(v, val_is_u32)
+#define require_i32(v)     require_type(v, val_is_i32)
+#define require_address(v) require_type(v, val_is_address)
+#define require_string(v)  require_type(v, val_is_string)
+#define require_symbol(v)  require_type(v, val_is_symbol)
+#define require_bytes(v)   require_type(v, val_is_bytes)
+#define require_vec(v)     require_type(v, val_is_vec)
+#define require_map(v)     require_type(v, val_is_map)
+#define require_i128(v)    require_type(v, val_is_i128)
+#define require_u128(v)    require_type(v, val_is_u128)
 
 __attribute__((import_module("x"), import_name("6")))
 val get_ledger_network_id(void);
