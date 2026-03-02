@@ -1,7 +1,5 @@
 # soroban-sdk-c
 
-[GitHub](https://github.com/leighmcculloch/c-soroban-sdk)
-
 > [!CAUTION]
 > This is experimental and should not be used for anything other than toy experiments.
 
