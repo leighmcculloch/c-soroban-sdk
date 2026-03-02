@@ -59,7 +59,6 @@ stellar contract deploy \
   -- \
   --admin testacc \
   --decimal 2 \
-  --name "C Token" \
   --symbol "CT"
 ```
 
