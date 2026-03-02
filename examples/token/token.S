@@ -3,8 +3,9 @@
 SOROBAN_ENV_META(25, 0)
 
 SOROBAN_CONTRACT_SPEC(
-    SPEC_ERROR_ENUM("Error", 5, 1)
+    SPEC_ERROR_ENUM("Error", 5, 2)
     SPEC_ERROR_CASE("InsufficientBalance", 19, 1)
+    SPEC_ERROR_CASE("NegativeAmount", 14, 2)
 
     SPEC_FN("__constructor", 13, 3)
     SPEC_INPUT("admin",   5, SPEC_TYPE_ADDRESS)

@@ -15,6 +15,7 @@
 #include "soroban.h"
 
 #define ERROR_INSUFFICIENT_BALANCE 1
+#define ERROR_NEGATIVE_AMOUNT      2
 
 /* ---- Storage keys (instance) ---- */
 #define KEY_ADMIN   symbol_small("ADMIN")
@@ -61,6 +62,8 @@ val mint(val to, val amount)
 val mint(val to, val amount) {
     require_address(to);
     require_i128(amount);
+    if (i128_lt(amount, val_from_i128(0, 0)) || i128_is_zero(amount))
+        fail_with_error(val_from_contract_error(ERROR_NEGATIVE_AMOUNT));
     val admin = get_admin();
     require_auth(admin);
 
