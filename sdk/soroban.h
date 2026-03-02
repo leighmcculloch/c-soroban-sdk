@@ -112,20 +112,34 @@ static inline int32_t val_to_i32(val v) {
  * Encodes a string literal of up to 9 characters [_0-9A-Za-z] into a
  * TAG_SYMBOL_SMALL val at compile time. For runtime symbols use the
  * host function symbol_new_from_linear_memory via symbol_from_str(). */
+#define _SYM_VALID(c) \
+    ((c) == '_' || ((c) >= '0' && (c) <= '9') || \
+     ((c) >= 'A' && (c) <= 'Z') || ((c) >= 'a' && (c) <= 'z'))
+
 #define _SYM_C(c) \
     ((c) == '_' ? 1ULL : \
      ((c) >= '0' && (c) <= '9') ? (2ULL + (unsigned)(c) - '0') : \
      ((c) >= 'A' && (c) <= 'Z') ? (12ULL + (unsigned)(c) - 'A') : \
      ((c) >= 'a' && (c) <= 'z') ? (38ULL + (unsigned)(c) - 'a') : 0ULL)
 
+/* Compile-time check: negative array size if char is invalid */
+#define _SYM_CHECK_CHAR(s, i) \
+    ((void)sizeof(char[1 - 2 * ((i) < (int)(sizeof(s) - 1) && !_SYM_VALID((s)[i]))]))
+
 #define _SYM_STEP(body, s, i) \
     ((i) < (int)(sizeof(s) - 1) ? ((body) << 6 | _SYM_C((s)[i])) : (body))
 
-/* Compile-time check: negative array size if string > 9 chars */
+/* Compile-time checks: negative array size on invalid length or chars */
 #define _SYM_CHECK_LEN(s) \
     ((void)sizeof(char[1 - 2 * (sizeof(s) - 1 > 9)]))
 
-#define symbol_small(s) (_SYM_CHECK_LEN(s), (val)(( \
+#define _SYM_CHECK(s) ( \
+    _SYM_CHECK_LEN(s), \
+    _SYM_CHECK_CHAR(s, 0), _SYM_CHECK_CHAR(s, 1), _SYM_CHECK_CHAR(s, 2), \
+    _SYM_CHECK_CHAR(s, 3), _SYM_CHECK_CHAR(s, 4), _SYM_CHECK_CHAR(s, 5), \
+    _SYM_CHECK_CHAR(s, 6), _SYM_CHECK_CHAR(s, 7), _SYM_CHECK_CHAR(s, 8))
+
+#define symbol_small(s) (_SYM_CHECK(s), (val)(( \
     _SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP( \
     _SYM_STEP(_SYM_STEP(0ULL, s, 0), s, 1), s, 2), s, 3), \
     s, 4), s, 5), s, 6), s, 7), s, 8) \
