@@ -48,3 +48,31 @@ jobs:
       - name: Invoke increment (second call)
         run: test "$(stellar contract invoke --id increment -- increment)" = "2"
 
+      - name: Deploy token contract
+        run: |
+          stellar contract deploy \
+            --alias token \
+            --wasm examples/token/token.wasm \
+            -- \
+            --admin $(stellar keys address deployer) \
+            --decimal 2 \
+            --symbol "CT"
+
+      - name: Token balance (initial)
+        run: test "$(stellar contract invoke --id token -- balance --id deployer)" = '"0"'
+
+      - name: Token mint
+        run: stellar contract invoke --id token -- mint --to deployer --amount 1234
+
+      - name: Token balance (after mint)
+        run: test "$(stellar contract invoke --id token -- balance --id deployer)" = '"1234"'
+
+      - name: Token transfer
+        run: stellar contract invoke --id token -- transfer --from deployer --to CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4 --amount 123
+
+      - name: Token balance (after transfer, sender)
+        run: test "$(stellar contract invoke --id token -- balance --id deployer)" = '"1111"'
+
+      - name: Token balance (after transfer, receiver)
+        run: test "$(stellar contract invoke --id token -- balance --id CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4)" = '"123"'
+
