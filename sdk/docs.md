@@ -124,14 +124,9 @@ int32_t val_to_i32(val v)
 ### Symbol Small
 
 ```c
-val val_from_symbol_small(const char *s)
+#define symbol_small(s)
 ```
-Encode up to 9 characters inline. Characters are encoded as 6-bit values: `_`=1, `0-9`=2-11, `A-Z`=12-37, `a-z`=38-63.
-
-```c
-#define symbol_small(s) val_from_symbol_small(s)
-```
-Convenience alias.
+Compile-time macro that encodes a string literal of up to 9 characters into a `TAG_SYMBOL_SMALL` val. Valid characters are `[_0-9A-Za-z]`, encoded as 6-bit values: `_`=1, `0-9`=2-11, `A-Z`=12-37, `a-z`=38-63. Strings longer than 9 characters or containing invalid characters produce a compile-time error. For runtime symbol creation use `symbol_from_str()`.
 
 ### Contract Error
 
