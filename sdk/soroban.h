@@ -187,22 +187,17 @@ __attribute__((import_module("x"), import_name("5")))
 val fail_with_error(val error);
 
 /* ---- Type assertion helpers ---- */
-static inline val require_type(val v, int (*check)(val)) {
-    if (!check(v))
-        fail_with_error(val_from_contract_error(0));
-    return v;
-}
-
-#define require_u32(v)     require_type(v, val_is_u32)
-#define require_i32(v)     require_type(v, val_is_i32)
-#define require_address(v) require_type(v, val_is_address)
-#define require_string(v)  require_type(v, val_is_string)
-#define require_symbol(v)  require_type(v, val_is_symbol)
-#define require_bytes(v)   require_type(v, val_is_bytes)
-#define require_vec(v)     require_type(v, val_is_vec)
-#define require_map(v)     require_type(v, val_is_map)
-#define require_i128(v)    require_type(v, val_is_i128)
-#define require_u128(v)    require_type(v, val_is_u128)
+#define _require_type(v, check) do { if (!(check)(v)) fail_with_error(val_from_contract_error(0)); } while(0)
+#define require_u32(v)     _require_type(v, val_is_u32)
+#define require_i32(v)     _require_type(v, val_is_i32)
+#define require_address(v) _require_type(v, val_is_address)
+#define require_string(v)  _require_type(v, val_is_string)
+#define require_symbol(v)  _require_type(v, val_is_symbol)
+#define require_bytes(v)   _require_type(v, val_is_bytes)
+#define require_vec(v)     _require_type(v, val_is_vec)
+#define require_map(v)     _require_type(v, val_is_map)
+#define require_i128(v)    _require_type(v, val_is_i128)
+#define require_u128(v)    _require_type(v, val_is_u128)
 
 __attribute__((import_module("x"), import_name("6")))
 val get_ledger_network_id(void);
@@ -669,7 +664,8 @@ static inline val string_from_str(const char *s, uint32_t len) {
  * i128 arithmetic helpers (decompose → operate → recompose)
  * ================================================================ */
 
-static inline val i128_add(val a, val b) {
+__attribute__((noinline))
+static val i128_add(val a, val b) {
     int64_t a_hi, b_hi;
     uint64_t a_lo, b_lo;
     val_to_i128(a, &a_hi, &a_lo);
@@ -683,7 +679,8 @@ static inline val i128_add(val a, val b) {
     return val_from_i128(hi, lo);
 }
 
-static inline val i128_sub(val a, val b) {
+__attribute__((noinline))
+static val i128_sub(val a, val b) {
     int64_t a_hi, b_hi;
     uint64_t a_lo, b_lo;
     val_to_i128(a, &a_hi, &a_lo);
@@ -697,7 +694,8 @@ static inline val i128_sub(val a, val b) {
     return val_from_i128(hi, lo);
 }
 
-static inline int i128_lt(val a, val b) {
+__attribute__((noinline))
+static int i128_lt(val a, val b) {
     int64_t a_hi, b_hi;
     uint64_t a_lo, b_lo;
     val_to_i128(a, &a_hi, &a_lo);
@@ -710,7 +708,8 @@ static inline int i128_gt(val a, val b) {
     return i128_lt(b, a);
 }
 
-static inline int i128_is_zero(val v) {
+__attribute__((noinline))
+static int i128_is_zero(val v) {
     int64_t hi; uint64_t lo;
     val_to_i128(v, &hi, &lo);
     return hi == 0 && lo == 0;
