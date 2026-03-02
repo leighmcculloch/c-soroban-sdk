@@ -851,6 +851,60 @@ static inline void emit_event3(val topic1, val topic2, val topic3, val data) {
     .balign 4, 0;                                                          \
     _XDR_U32(value) /* error value */
 
+/* ---- Event spec building blocks ---- */
+
+/* Event parameter location constants */
+#define SPEC_EVENT_PARAM_DATA   0
+#define SPEC_EVENT_PARAM_TOPIC  1
+
+/* Event data format constants */
+#define SPEC_EVENT_DATA_SINGLE  0
+#define SPEC_EVENT_DATA_VEC     1
+#define SPEC_EVENT_DATA_MAP     2
+
+/* Begin an event spec entry.
+   name:      event name as a C string literal (e.g. "Mint")
+   nlen:      byte-length of the name
+   nprefixes: number of prefix topics (0-2)
+   nparams:   number of event parameters */
+#define SPEC_EVENT(name, nlen, nprefixes, nparams)                         \
+    _XDR_U32(5)     /* SC_SPEC_ENTRY_EVENT_V0 */                           \
+    _XDR_U32(0)     /* doc: empty string */                                \
+    _XDR_U32(0)     /* lib: empty string */                                \
+    _XDR_U32(nlen)  /* name length */                                      \
+    .ascii name;                                                           \
+    .balign 4, 0;                                                          \
+    _XDR_U32(nprefixes) /* prefixTopics count */
+
+/* Declare one prefix topic (SCSymbol = XDR string).
+   sym:   symbol text as a C string literal (e.g. "mint")
+   slen:  byte-length of the symbol */
+#define SPEC_EVENT_PREFIX_TOPIC(sym, slen)                                 \
+    _XDR_U32(slen)  /* symbol length */                                    \
+    .ascii sym;                                                            \
+    .balign 4, 0;
+
+/* Declare the params array length (follows prefix topics) */
+#define SPEC_EVENT_PARAMS(nparams)                                         \
+    _XDR_U32(nparams) /* params count */
+
+/* Describe one event parameter.
+   name:     parameter name as a C string literal
+   nlen:     byte-length of the name
+   type:     SPEC_TYPE_* constant
+   location: SPEC_EVENT_PARAM_TOPIC or SPEC_EVENT_PARAM_DATA */
+#define SPEC_EVENT_PARAM(name, nlen, type, location)                       \
+    _XDR_U32(0)        /* doc: empty string */                             \
+    _XDR_U32(nlen)     /* name length */                                   \
+    .ascii name;                                                           \
+    .balign 4, 0;                                                          \
+    _XDR_U32(type)     /* ScSpecTypeDef */                                 \
+    _XDR_U32(location) /* topic or data */
+
+/* Declare the data format for an event */
+#define SPEC_EVENT_DATA_FORMAT(fmt)                                        \
+    _XDR_U32(fmt) /* SCSpecEventDataFormat */
+
 /* Wrap all spec entries in a contractspecv0 custom section */
 #define SOROBAN_CONTRACT_SPEC(...)                                         \
     .section .custom_section.contractspecv0,"",@;                          \
