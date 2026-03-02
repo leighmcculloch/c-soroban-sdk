@@ -108,25 +108,24 @@ static inline int32_t val_to_i32(val v) {
     return (int32_t)((uint64_t)v >> 32);
 }
 
-/* ---- Symbol small encoding ---- */
-static inline int _sym_char_to_6bit(char c) {
-    if (c == '_') return 1;
-    if (c >= '0' && c <= '9') return 2 + (c - '0');
-    if (c >= 'A' && c <= 'Z') return 12 + (c - 'A');
-    if (c >= 'a' && c <= 'z') return 38 + (c - 'a');
-    __builtin_trap();
-}
+/* ---- Symbol small encoding (compile-time macro) ----
+ * Encodes a string literal of up to 9 characters [_0-9A-Za-z] into a
+ * TAG_SYMBOL_SMALL val at compile time. For runtime symbols use the
+ * host function symbol_new_from_linear_memory via symbol_from_str(). */
+#define _SYM_C(c) \
+    ((c) == '_' ? 1ULL : \
+     ((c) >= '0' && (c) <= '9') ? (2ULL + (unsigned)(c) - '0') : \
+     ((c) >= 'A' && (c) <= 'Z') ? (12ULL + (unsigned)(c) - 'A') : \
+     ((c) >= 'a' && (c) <= 'z') ? (38ULL + (unsigned)(c) - 'a') : 0ULL)
 
-static inline val val_from_symbol_small(const char *s) {
-    uint64_t body = 0;
-    int i;
-    for (i = 0; s[i] && i < 9; i++)
-        body = (body << 6) | (uint64_t)_sym_char_to_6bit(s[i]);
-    if (s[i])
-        __builtin_trap();
-    return (val)((body << 8) | TAG_SYMBOL_SMALL);
-}
-#define symbol_small(s) val_from_symbol_small(s)
+#define _SYM_STEP(body, s, i) \
+    ((i) < (int)(sizeof(s) - 1) ? ((body) << 6 | _SYM_C((s)[i])) : (body))
+
+#define symbol_small(s) ((val)(( \
+    _SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP( \
+    _SYM_STEP(_SYM_STEP(0ULL, s, 0), s, 1), s, 2), s, 3), \
+    s, 4), s, 5), s, 6), s, 7), s, 8) \
+    << 8) | TAG_SYMBOL_SMALL))
 
 /* ---- Error val encoding ---- */
 static inline val val_from_contract_error(uint32_t code) {
