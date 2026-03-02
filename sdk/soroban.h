@@ -114,13 +114,16 @@ static inline int _sym_char_to_6bit(char c) {
     if (c >= '0' && c <= '9') return 2 + (c - '0');
     if (c >= 'A' && c <= 'Z') return 12 + (c - 'A');
     if (c >= 'a' && c <= 'z') return 38 + (c - 'a');
-    return 0;
+    __builtin_trap();
 }
 
 static inline val val_from_symbol_small(const char *s) {
     uint64_t body = 0;
-    for (int i = 0; s[i] && i < 9; i++)
+    int i;
+    for (i = 0; s[i] && i < 9; i++)
         body = (body << 6) | (uint64_t)_sym_char_to_6bit(s[i]);
+    if (s[i])
+        __builtin_trap();
     return (val)((body << 8) | TAG_SYMBOL_SMALL);
 }
 #define symbol_small(s) val_from_symbol_small(s)
