@@ -121,7 +121,11 @@ static inline int32_t val_to_i32(val v) {
 #define _SYM_STEP(body, s, i) \
     ((i) < (int)(sizeof(s) - 1) ? ((body) << 6 | _SYM_C((s)[i])) : (body))
 
-#define symbol_small(s) ((val)(( \
+/* Compile-time check: negative array size if string > 9 chars */
+#define _SYM_CHECK_LEN(s) \
+    ((void)sizeof(char[1 - 2 * (sizeof(s) - 1 > 9)]))
+
+#define symbol_small(s) (_SYM_CHECK_LEN(s), (val)(( \
     _SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP(_SYM_STEP( \
     _SYM_STEP(_SYM_STEP(0ULL, s, 0), s, 1), s, 2), s, 3), \
     s, 4), s, 5), s, 6), s, 7), s, 8) \
