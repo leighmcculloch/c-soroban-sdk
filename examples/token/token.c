@@ -62,7 +62,7 @@ val mint(val to, val amount)
 val mint(val to, val amount) {
     require_address(to);
     require_i128(amount);
-    if (i128_lt(amount, val_from_i128(0, 0)) || i128_is_zero(amount))
+    if (i128_lt(amount, val_from_i128(0, 0)))
         fail_with_error(val_from_contract_error(ERROR_NEGATIVE_AMOUNT));
     val admin = get_admin();
     require_auth(admin);
@@ -82,7 +82,7 @@ val transfer(val from, val to, val amount) {
     require_address(from);
     require_address(to);
     require_i128(amount);
-    if (i128_lt(amount, val_from_i128(0, 0)) || i128_is_zero(amount))
+    if (i128_lt(amount, val_from_i128(0, 0)))
         fail_with_error(val_from_contract_error(ERROR_NEGATIVE_AMOUNT));
     require_auth(from);
 
