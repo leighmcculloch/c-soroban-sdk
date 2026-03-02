@@ -14,6 +14,8 @@
  */
 #include "soroban.h"
 
+#define ERROR_INSUFFICIENT_BALANCE 1
+
 /* ---- Storage keys (instance) ---- */
 #define KEY_ADMIN   symbol_small("ADMIN")
 #define KEY_DECIMAL symbol_small("DECIMAL")
@@ -80,7 +82,7 @@ val transfer(val from, val to, val amount) {
     val to_bal   = get_balance(to);
 
     if (i128_lt(from_bal, amount))
-        fail_with_error(val_from_contract_error(1));
+        fail_with_error(val_from_contract_error(ERROR_INSUFFICIENT_BALANCE));
 
     set_balance(from, i128_sub(from_bal, amount));
     set_balance(to,   i128_add(to_bal, amount));

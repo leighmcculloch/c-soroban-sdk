@@ -784,6 +784,30 @@ static inline void emit_event3(val topic1, val topic2, val topic3, val data) {
 #define SPEC_OUTPUT_VOID                                                   \
     _XDR_U32(0)     /* outputs count = 0 */
 
+/* Begin an error enum spec entry.
+   name:    enum name as a C string literal (e.g. "Error")
+   nlen:    byte-length of the name
+   ncases:  number of error cases */
+#define SPEC_ERROR_ENUM(name, nlen, ncases)                                \
+    _XDR_U32(4)     /* SC_SPEC_ENTRY_UDT_ERROR_ENUM_V0 */                  \
+    _XDR_U32(0)     /* doc: empty string */                                \
+    _XDR_U32(0)     /* lib: empty string */                                \
+    _XDR_U32(nlen)  /* name length */                                      \
+    .ascii name;                                                           \
+    .balign 4, 0;                                                          \
+    _XDR_U32(ncases) /* cases count */
+
+/* Describe one error case.
+   name:   case name as a C string literal (e.g. "Overflow")
+   nlen:   byte-length of the name
+   value:  error code (u32) */
+#define SPEC_ERROR_CASE(name, nlen, value)                                 \
+    _XDR_U32(0)     /* doc: empty string */                                \
+    _XDR_U32(nlen)  /* name length */                                      \
+    .ascii name;                                                           \
+    .balign 4, 0;                                                          \
+    _XDR_U32(value) /* error value */
+
 /* Wrap all spec entries in a contractspecv0 custom section */
 #define SOROBAN_CONTRACT_SPEC(...)                                         \
     .section .custom_section.contractspecv0,"",@;                          \

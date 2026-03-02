@@ -6,6 +6,8 @@
  */
 #include "soroban.h"
 
+#define ERROR_OVERFLOW 1
+
 val increment(void) __attribute__((export_name("increment")));
 
 val increment(void) {
@@ -18,7 +20,7 @@ val increment(void) {
 
     /* Increment with overflow check */
     if (__builtin_add_overflow(count, 1u, &count))
-        fail_with_error(val_from_contract_error(1));
+        fail_with_error(val_from_contract_error(ERROR_OVERFLOW));
     put_contract_data(key, val_from_u32(count), STORAGE_INSTANCE);
 
     return val_from_u32(count);
