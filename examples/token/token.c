@@ -87,13 +87,12 @@ val transfer(val from, val to, val amount) {
     require_auth(from);
 
     val from_bal = get_balance(from);
-    val to_bal   = get_balance(to);
 
     if (i128_lt(from_bal, amount))
         fail_with_error(val_from_contract_error(ERROR_INSUFFICIENT_BALANCE));
 
     set_balance(from, i128_sub(from_bal, amount));
-    set_balance(to,   i128_add(to_bal, amount));
+    set_balance(to,   i128_add(get_balance(to), amount));
 
     emit_event3(symbol_small("transfer"), from, to, amount);
 
