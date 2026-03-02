@@ -27,9 +27,7 @@ jobs:
           path: contracts/**/*.wasm
 
       - name: Install Stellar CLI
-        run: |
-          curl -fsSL https://github.com/stellar/stellar-cli/releases/latest/download/stellar-cli-installer.sh | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        run: curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
 
       - name: Configure testnet and identity
         run: |
