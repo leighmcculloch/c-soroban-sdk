@@ -37,8 +37,8 @@ make
 
 | Example | Description |
 |---------|-------------|
-| [increment](contracts/increment) | Counter stored in contract data |
-| [token](contracts/token) | SEP-41 fungible token |
+| [increment](examples/increment) | Counter stored in contract data |
+| [token](examples/token) | SEP-41 fungible token |
 
 ## Deploy
 
@@ -49,12 +49,12 @@ stellar keys use testacc
 
 # Increment
 stellar contract deploy \
-  --wasm contracts/increment/increment.wasm \
+  --wasm examples/increment/increment.wasm \
   --alias increment
 
 # Token (with constructor args)
 stellar contract deploy \
-  --wasm contracts/token/token.wasm \
+  --wasm examples/token/token.wasm \
   --alias token \
   -- \
   --admin testacc \

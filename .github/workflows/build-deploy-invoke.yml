@@ -24,7 +24,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: contracts
-          path: contracts/**/*.wasm
+          path: examples/**/*.wasm
 
       - name: Install Stellar CLI
         run: curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
@@ -39,7 +39,7 @@ jobs:
         run: |
           stellar contract deploy \
             --alias increment \
-            --wasm contracts/increment/increment.wasm
+            --wasm examples/increment/increment.wasm
           echo "Increment contract deployed"
 
       - name: Invoke increment (first call)
